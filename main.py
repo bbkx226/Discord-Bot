@@ -2,6 +2,7 @@ import discord
 import os
 import requests
 import json
+import random
 from replit import db
 from keep_alive import keep_alive
 from discord.ext import commands, tasks
@@ -15,9 +16,9 @@ client = commands.Bot(command_prefix='$')
 
 
 status = [
-    '(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧Resting!✧ﾟ･: *ヽ(◕ヮ◕ヽ) | $help', 'Eating!(ノಠ益ಠ)ノ彡┻━┻ | $help',
-    '(☞ﾟヮﾟ)☞Sleeping!☜(ﾟヮﾟ☜) | $help', 'Gambling! [̲̅$̲̅(̲̅5̲̅)̲̅$̲̅] | $help',
-    'Googling!(づ｡◕‿‿◕｡)づ | $help', '(👍≖‿‿≖)👍Dreaming👍(≖‿‿≖👍)| $help', 'Fighting!(ง ͠° ͟ل͜ ͡°)ง | $help'
+    '(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧Resting!✧ﾟ･: *ヽ(◕ヮ◕ヽ)', 'Eating!(ノಠ益ಠ)ノ彡┻━┻',
+    '(☞ﾟヮﾟ)☞Sleeping!☜(ﾟヮﾟ☜)', 'Gambling! [̲̅$̲̅(̲̅5̲̅)̲̅$̲̅]',
+    'Googling!(づ｡◕‿‿◕｡)づ', '(👍≖‿‿≖)👍Dreaming👍(≖‿‿≖👍)', 'Fighting!(ง ͠° ͟ل͜ ͡°)ง'
 ]
 
 player1 = ""
@@ -39,7 +40,44 @@ def get_quote():
     json_data = json.loads(response.text)
     quote = json_data[0]['q'] + " -" + json_data[0]['a']
     return (quote)
+  
+def get_weather(x):
+    API_KEY = "5569264d77d68aa18a308791b2fa067c"
+    BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
+  
+    request_url = f"{BASE_URL}?q={x}&appid={API_KEY}"
+  
+    response = requests.get(request_url)
+    if response.status_code == 200:
+      data = response.json()
+      weather = data['weather'][0]['description']
+      temperature = data["main"]["temp"]
+      temp = temperature - 273.15
+      wind = data['wind']['speed']
+      return(f"***Weather***: {weather} \n***Temperature***: {round(temp, 2)} celsius\n***Wind speed***: {wind} m/s")
+    else:
+      return("An error occured. ")
 
+def get_random_love_message():
+    url = "https://ajith-messages.p.rapidapi.com/getMsgs"
+
+    querystring = {"category":"love"}
+
+    headers = {
+	    "X-RapidAPI-Host": "ajith-messages.p.rapidapi.com",
+	    "X-RapidAPI-Key": "3340e22875msh4211ff79e188bd9p14b3cfjsn4ae96ec0d2dc"
+    }
+    response = requests.request("GET", url, headers=headers, params=querystring)
+    data = response.json()
+    message = data["Message"]
+    return(f'***{message}***')
+
+def get_greeting():
+    response = requests.get("https://www.greetingsapi.com/random")
+    data = response.json()
+    greeting = data['greeting']
+    lang = data['language']
+    return(f'{greeting} | {lang}')
 
 def update_encouragements(encouraging_message):
     if "encouragements" in db.keys():
@@ -75,16 +113,35 @@ async def on_member_join(member):
         f'Welcome {member.mention}! See `#help` command for details!')
 
 
+  
 @client.command(name='ping', help='This command returns the latency')
 async def ping(ctx):
     await ctx.send(f'*** Latency: {round(client.latency * 1000)}ms ༼ʘ̚ل͜ʘ̚༽')
-
-
+  
 @client.command(name='inspire', help='This command returns a random quote')
 async def inspire(ctx):
     quote = get_quote()
     await ctx.channel.send(quote)
 
+@client.command(name='weather', help='This command returns the weather of your city')
+async def weather(ctx):
+    def check(msg):
+      return msg.author == ctx.author and msg.channel == ctx.channel
+    await ctx.send("Enter a city name: ")
+    msg1 = await client.wait_for("message", check=check)
+    x = str(msg1.content)
+    wea = get_weather(x)
+    await ctx.channel.send(wea)
+
+@client.command(name='love', help='This command returns random love message')
+async def love(ctx):
+    luv = get_random_love_message()
+    await ctx.channel.send(luv)
+
+@client.command(name='hello', help='This command returns a welcome message with random languange')
+async def hello(ctx):
+    greet = get_greeting()
+    await ctx.channel.send(greet)
 
 @client.command(name='reverse', help='This command returns a reverse number')
 async def reverse(ctx):
@@ -101,13 +158,11 @@ async def reverse(ctx):
         reversed_num = reversed_num * 10 + x % 10
         x //= 10
     await ctx.channel.send(reversed_num)
-
-
+  
 @client.command(name='time', help='This command returns current time')
 async def time(ctx):
     await ctx.channel.send(datetime.now(pytz.timezone('Asia/Shanghai')))
-
-
+  
 @client.command(name='officials',
                 help='This command returns members of ATSM Club')
 async def officials(ctx):
@@ -174,19 +229,7 @@ async def credits(ctx):
     await ctx.send(
         '👉Any advice to improve my bot, please email to bbkx226@gmail.com. Appreciate!***'
     )
-
-
-@client.command(name='hello',
-                help='This command returns a random welcome message')
-async def hello(ctx):
-    responses = [
-        '***Bruh***  , why did you wake me up?', 'Stop spamming, I\'m dating Siri ( ͡❛ ͜ʖ ͡❛)',
-        'Hi and Bye (;´༎ຶД༎ຶ`) ~', 'Hello world!', '﴾͡๏̯͡๏﴿ O\'RLY?',
-        '༼ ºل͟º ༼ ºل͟º ༼ ºل͟º ༽ ºل͟º ༽ ºل͟º ༽'
-    ]
-    await ctx.send(choice(responses))
-
-
+  
 @client.command(name='rd', help='This command returns a random number')
 async def rd(ctx):
     def check(msg):
@@ -253,7 +296,6 @@ async def server(ctx):
     embed.add_field(name="Member Count", value=memberCount, inline=True)
 
     await ctx.send(embed=embed)
-
 
 @client.command(name='tictactoe',
                 help='Play game by entering $tictactoe @first_user @second_user')
