@@ -9,7 +9,10 @@ from random import choice
 from random import randint
 from datetime import datetime
 import pytz
+import dotenv
 
+dotenv.load_dotenv()
+token = os.getenv("TOKEN")
 intents = discord.Intents.all()
 client = commands.Bot(command_prefix='$', intents=intents)
 
@@ -445,4 +448,5 @@ async def place_error(ctx, error):
         await ctx.send("Please enter a position you would like to mark.")
     elif isinstance(error, commands.BadArgument):
         await ctx.send("Please make sure to enter an integer.")
-client.run(os.getenv("TOKEN"))
+
+client.run(token)
