@@ -1,0 +1,8 @@
+discord.py
+os
+requests
+json
+random
+replit
+discord.ext
+pytz
