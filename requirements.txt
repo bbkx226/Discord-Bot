@@ -1,11 +1,19 @@
+<<<<<<< HEAD
 flask
 threading
 discord
+=======
+discord.py
+>>>>>>> 733bf77fcc5b34ae16f5a84c64c71f605182ea2c
 os
 requests
 json
 random
 replit
+<<<<<<< HEAD
 discord.ext
 datetime
 pytz
+=======
+pytz
+>>>>>>> 733bf77fcc5b34ae16f5a84c64c71f605182ea2c
