@@ -4,5 +4,4 @@ requests
 json
 random
 replit
-discord.ext
 pytz

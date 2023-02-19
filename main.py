@@ -4,15 +4,13 @@ import requests
 import json
 import random
 from replit import db
+from keep_alive import keep_alive
 from discord.ext import commands, tasks
 from random import choice
 from random import randint
 from datetime import datetime
 import pytz
-import dotenv
 
-dotenv.load_dotenv()
-token = os.getenv("TOKEN")
 intents = discord.Intents.all()
 client = commands.Bot(command_prefix='$', intents=intents)
 
@@ -45,7 +43,7 @@ def get_quote():
 
 
 def get_weather(x):
-    API_KEY = "5569264d77d68aa18a308791b2fa067c"
+    API_KEY = os.getenv("API_KEY")
     BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
 
     request_url = f"{BASE_URL}?q={x}&appid={API_KEY}"
@@ -71,7 +69,7 @@ def get_random_love_message():
 
     headers = {
         "X-RapidAPI-Host": "ajith-messages.p.rapidapi.com",
-        "X-RapidAPI-Key": "3340e22875msh4211ff79e188bd9p14b3cfjsn4ae96ec0d2dc"
+        "X-RapidAPI-Key": os.getenv("X-RapidAPI-Key")
     }
     response = requests.request("GET",
                                 url,
@@ -122,6 +120,7 @@ async def on_member_join(member):
     channel = discord.utils.get(member.guild.channels, name='general')
     await channel.send(
         f'Welcome {member.mention}! See `$help` command for details!')
+
 
 @client.command(name='ping', help='This command returns the latency')
 async def ping(ctx):
@@ -449,4 +448,6 @@ async def place_error(ctx, error):
     elif isinstance(error, commands.BadArgument):
         await ctx.send("Please make sure to enter an integer.")
 
-client.run(token)
+
+keep_alive()
+client.run(os.getenv("TOKEN"))
